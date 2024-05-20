@@ -1,0 +1,1 @@
+export type StateUpdater<T> = ((val: T) => T) | T;

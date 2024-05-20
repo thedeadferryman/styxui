@@ -17,3 +17,7 @@
 
 export * from './common';
 export { default as classnames } from './classnames';
+
+export const delay = (ms: number) => new Promise(resolve => {
+	setTimeout(resolve, ms);
+});

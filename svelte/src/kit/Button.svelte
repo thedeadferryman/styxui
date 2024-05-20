@@ -15,25 +15,23 @@
   -
   -->
 
-<script context="module" lang="ts">
-	const styles = ['primary', 'secondary', 'regular', 'error'] as const;
+<script lang="ts" context="module">
 </script>
 
 <script lang="ts">
-	import Button from './kit/Button.svelte';
+	import { classnames } from 'utils';
 
-	let style = 0;
+	let classNameInt: string = '';
 
-	const onClick = () => {
-		style = (style + 1) % styles.length;
-	};
+	$: {
+		classNameInt = ;
+	}
 </script>
 
-<main>
-  <Button
-    tint={styles[style]}
-    on:click={onClick}
-  >
-    Click me!
-  </Button>
-</main>
+<button
+  on:click
+  {disabled}
+  class={classNameInt}
+>
+  <slot></slot>
+</button>
