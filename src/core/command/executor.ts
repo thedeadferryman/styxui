@@ -1,24 +1,66 @@
-import type { ExprEvaluator } from 'core/command/evaluator';
-import type { CallCommand, Command } from 'core/command/command';
+import type { ExprEvaluator } from 'core/command';
+import type { CallCommand, Command, RuntimeCommand } from 'core/command/command';
 import type { ProcedureCaller } from 'core/command/caller';
 import { set } from 'utils/object';
-import { delay, isNotNil } from 'utils';
+import { delay, isNotNil, uniqueId } from 'utils';
 import { Dispatch, SetStateAction } from 'react';
+import { debounce } from 'utils/func';
 
 const wrapPromise = (value: unknown) => (
 	(value instanceof Promise) ? value : Promise.resolve(value)
 );
 
+type CompiledCommand = (context?: any) => any;
+
+interface CacheEntry {
+	func: CompiledCommand;
+}
+
 export class CommandExecutor {
+	private idMap: WeakMap<Command, number>;
+	private cache: Map<number, CacheEntry>;
+
 	constructor(
 		private readonly evaluator: ExprEvaluator,
 		private readonly updater: Dispatch<SetStateAction<{}>>,
 		private readonly procedureCaller: ProcedureCaller,
 	) {
+		this.idMap = new WeakMap();
+		this.cache = new Map();
 		this.evaluator.setExecutor(this);
 	}
 
 	execute = (command: Command, context?: any) => {
+		const id = this.commandId(command);
+		let cached = this.cache.get(id);
+		if (isNotNil(cached)) {
+			return cached.func(context);
+		}
+		const compiled = this.compile(command);
+
+		this.cache.set(id, {
+			func: compiled,
+		} satisfies CacheEntry);
+		return compiled(context);
+	};
+
+	compileAhead = (command: Command) => {
+		this.cache.set(this.commandId(command), { func: this.compile(command) });
+	};
+
+	private compile = (command: Command): CompiledCommand => {
+		switch (command.$) {
+			case 'debounce':
+				return debounce(
+					this.compile(command.body),
+					command.delay,
+				);
+			default:
+				return (context?: any) => this.executeDirect(command, context);
+		}
+	};
+
+	private executeDirect = (command: RuntimeCommand, context?: any) => {
 		switch (command.$) {
 			case 'delay':
 				return delay(command.time);
@@ -36,11 +78,21 @@ export class CommandExecutor {
 					this.evaluator.evaluate(command.value, context),
 				));
 				return undefined;
-			case 'return':
+			case 'expr':
 				return this.evaluator.evaluate(command.value, context);
 			case 'callback':
 				return command.callback(context);
 		}
+	};
+
+	private commandId = (command: Command): number => {
+		const hasId = this.idMap.get(command);
+
+		if (isNotNil(hasId)) return hasId;
+
+		const id = uniqueId();
+		this.idMap.set(command, id);
+		return id;
 	};
 
 	private callProc = (

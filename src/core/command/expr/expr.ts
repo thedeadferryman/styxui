@@ -41,4 +41,9 @@ export interface ExecExpr {
 	arg?: Expr;
 }
 
-export type Expr = LiteralExpr | GetExpr | ArrayExpr | ObjectExpr | ArgExpr | PromiseExpr | MathExpr | ExecExpr;
+export interface EvalExpr {
+	$: 'eval';
+	code: string;
+}
+
+export type Expr = LiteralExpr | GetExpr | ArrayExpr | ObjectExpr | ArgExpr | PromiseExpr | MathExpr | ExecExpr | EvalExpr;

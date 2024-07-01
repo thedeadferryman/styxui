@@ -1,101 +1,162 @@
 import './app.css';
-import App from 'core/App';
-import { lit, text } from 'utils/dsl';
-import { useMemo } from 'react';
-import { Block } from 'core/block';
+import StandaloneFrontend from 'core/entrypoint/standalone';
+
+// const caller = {
+// 	call: (name: string, args: any[]) => (
+// 		fetch(`https://api.ipify.org/?method=${name}&args=${encodeURIComponent(JSON.stringify(args))}`)
+// 			.then(value => value.text())
+// 	),
+// } satisfies ProcedureCaller;
 
 export const Root = () => {
-	const layout = useMemo(() => ({
-		$: 'Column',
-		props: {
-			align: lit('stretch'),
-		},
-		body: [
-			{
-				$: 'Row',
-				props: {
-					spacing: lit('sparse'),
-				},
-				body: [
-					{
-						$: 'Card',
-						props: {
-							sizing: lit('grow'),
-							title: {
-								$: '+',
-								args: [
-									lit('value = '),
-									{ $: 'get', path: 'card1' },
-								],
-							},
-						},
-						body: [
-							{
-								$: 'Button',
-								props: {
-									tint: lit('secondary'),
-								},
-								body: [
-									text('Press me'),
-								],
-								bind: {
-									click: {
-										$: 'set',
-										path: 'card1',
-										value: {
-											$: '+',
-											args: [
-												{
-													$: '||', args: [
-														{ $: 'get', path: 'card1' },
-														lit(0),
-													],
-												},
-												lit(1),
-											],
-										},
-									},
-								},
-							},
-							text({
-								$: 'exec',
-								body: {
-									$: 'chain',
-									body: [
-										{ $: 'return', value: { $: 'get', path: undefined } },
-										{ $: 'callback', callback: arg => JSON.stringify(arg, undefined, 2) },
-									],
-								},
-							}),
-						],
-					},
-				],
-			},
-		],
-	} satisfies Block), []);
-	//
-	// useEffect(() => {
-	// 	const encoded = encodeURIComponent(JSON.stringify(layout));
-	// 	const uri = `data:text/plain,${encoded}`;
-	//
-	// 	const link = document.createElement('a');
-	// 	link.href = uri;
-	// 	link.download = 'layout.json';
-	//
-	// 	link.click();
-	// }, [layout]);
+	// const layout = useMemo((): Block => ({
+	// 	$: 'Column',
+	// 	props: {
+	// 		align: lit('stretch'),
+	// 	},
+	// 	body: [
+	// 		{
+	// 			$: 'Row',
+	// 			props: {
+	// 				spacing: lit('sparse'),
+	// 			},
+	// 			body: [
+	// 				{
+	// 					$: 'Card',
+	// 					props: {
+	// 						sizing: lit('grow'),
+	// 						title: {
+	// 							$: '+',
+	// 							args: [
+	// 								lit('value = '),
+	// 								{ $: 'get', path: 'card1.counter' },
+	// 							],
+	// 						},
+	// 					},
+	// 					body: [
+	// 						{
+	// 							$: 'Row',
+	// 							props: {
+	// 								align: lit('center'),
+	// 								spacing: lit('dense'),
+	// 							},
+	// 							body: [
+	// 								{
+	// 									$: 'Button',
+	// 									props: { tint: lit('secondary') },
+	// 									body: [text('Decrement')],
+	// 									bind: {
+	// 										click: {
+	// 											$: 'set',
+	// 											path: 'card1.counter',
+	// 											value: {
+	// 												$: '-',
+	// 												args: [
+	// 													{
+	// 														$: '||', args: [
+	// 															{ $: 'get', path: 'card1.counter' },
+	// 															lit(0),
+	// 														],
+	// 													},
+	// 													lit(1),
+	// 												],
+	// 											},
+	// 										},
+	// 									},
+	// 								},
+	// 								{
+	// 									$: 'Button',
+	// 									props: { tint: lit('secondary') },
+	// 									body: [text('Increment')],
+	// 									bind: {
+	// 										click: {
+	// 											$: 'set',
+	// 											path: 'card1.counter',
+	// 											value: {
+	// 												$: '+',
+	// 												args: [
+	// 													{
+	// 														$: '||', args: [
+	// 															{ $: 'get', path: 'card1.counter' },
+	// 															lit(0),
+	// 														],
+	// 													},
+	// 													lit(1),
+	// 												],
+	// 											},
+	// 										},
+	// 									},
+	// 								},
+	// 								{
+	// 									$: 'Input',
+	// 									props: {
+	// 										tint: lit('primary'),
+	// 									},
+	// 									bind: {
+	// 										change: {
+	// 											$: 'debounce',
+	// 											delay: 250,
+	// 											body: {
+	// 												$: 'set',
+	// 												path: 'card1.text',
+	// 												value: {
+	// 													$: 'arg',
+	// 													path: undefined,
+	// 												},
+	// 											},
+	// 										},
+	// 									},
+	// 								},
+	// 								text({
+	// 									$: 'exec',
+	// 									body: {
+	// 										$: 'chain',
+	// 										body: [
+	// 											{ $: 'expr', value: { $: 'get', path: undefined } },
+	// 											{ $: 'callback', callback: arg => JSON.stringify(arg, undefined, 2) },
+	// 										],
+	// 									},
+	// 								}),
+	// 								{
+	// 									$: 'Button',
+	// 									props: { tint: lit('primary') },
+	// 									body: [text('Submit')],
+	// 									bind: {
+	// 										click: {
+	// 											$: 'chain',
+	// 											body: [
+	// 												{
+	// 													$: 'call',
+	// 													proc: 'counter.set',
+	// 													args: [{
+	// 														$: 'obj',
+	// 														props: {
+	// 															value: {
+	// 																$: 'get',
+	// 																path: 'card1.counter',
+	// 															},
+	// 														},
+	// 													}],
+	// 												},
+	// 												{
+	// 													$: 'bind',
+	// 													then: { $: 'callback', callback: (val) => console.info(val) },
+	// 													catch: { $: 'callback', callback: (val) => console.warn(val) },
+	// 												},
+	// 											],
+	// 										},
+	// 									},
+	// 								},
+	// 							],
+	// 						},
+	// 					],
+	// 				},
+	// 			],
+	// 		},
+	// 	],
+	// }), []);
 
 	return (
-		<div className={'m-6'}>
-			<App
-				layout={layout}
-				initialState={{
-					card1: 10,
-				}}
-				caller={{ call: () => Promise.resolve() }}
-			>
-
-			</App>
-		</div>
+		<StandaloneFrontend />
 	);
 };

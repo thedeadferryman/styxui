@@ -1,5 +1,5 @@
-import { GridProps } from './grid';
-
-export type GridElementProps = Omit<GridProps, 'direction'>;
+export * from './box';
+export { default as Box } from './box';
 
 export * from './grid';
+export * from './styles';

@@ -1,4 +1,3 @@
-export * from './evaluator';
 export * from './executor';
 export * from './caller';
 export * from './expr';

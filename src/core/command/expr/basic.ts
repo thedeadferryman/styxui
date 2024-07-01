@@ -1,24 +1,22 @@
-import type { Expr, MathExpr } from 'core/command/expr';
 import { get } from 'utils/object';
-import { CommandExecutor } from 'core/command/executor.ts';
+import { CommandExecutor } from 'core/command/executor';
+import type { EvalExpr, Expr, MathExpr } from './expr';
+import { ExprEvaluator } from 'core/command/expr/index.ts';
+import { wtf } from 'utils';
 
-export interface EvalContext {
-	args: unknown[];
-}
-
-export class ExprEvaluator {
+export class BasicExprEvaluator implements ExprEvaluator {
 	constructor(
 		private state: {},
-		private executor: CommandExecutor | undefined,
+		private executor?: CommandExecutor,
 	) {
 	}
 
-	setExecutor = (executor: CommandExecutor) => {
-		this.executor = executor;
-	};
-
 	setState = (state: {}) => {
 		this.state = state;
+	};
+
+	setExecutor = (executor: CommandExecutor) => {
+		this.executor = executor;
 	};
 
 	evaluate = (expr: Expr, context: {} = {}): any => {
@@ -48,8 +46,16 @@ export class ExprEvaluator {
 				return expr.args
 					.map(arg => this.evaluate(arg, context))
 					.reduce((acc, cur) => this.evaluateMath(expr, acc, cur));
+			case 'eval':
+				return this.evaluateEval(expr, context);
+			default:
+				return wtf(expr);
 		}
 	};
+
+	private evaluateEval = (expr: EvalExpr, context: any) => (
+		STYXUI_SAFE_EVAL(`(function (evalState, evalContext) {${expr.code})`)(get(this.state, undefined), context)
+	);
 
 	private evaluateMath = (expr: MathExpr, left: any, right: any) => {
 		switch (expr.$) {

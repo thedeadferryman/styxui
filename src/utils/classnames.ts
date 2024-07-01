@@ -15,10 +15,10 @@
  *
  */
 
-import { isRecord, identity, isNotNil, isReadonlyArray } from './common';
+import { identity, isNotNil, isReadonlyArray, isRecord, Nil } from './common';
 
 type ScalarClassNameArg = string | null | undefined;
-type FlatClassNameArg = ScalarClassNameArg | Readonly<Record<string, boolean>>;
+type FlatClassNameArg = ScalarClassNameArg | Readonly<Record<string, boolean | Nil>>;
 type ClassNameArg = FlatClassNameArg | readonly ClassNameArg[];
 
 const reduceArrayArgs = (args: ClassNameArg): FlatClassNameArg[] => (

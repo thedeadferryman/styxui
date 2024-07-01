@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { PropsWithChildren, ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { classnames } from 'utils';
-import Cell, { CellProps } from 'kit/grid/cell.tsx';
+import { Box, BoxProps } from 'kit/grid';
 
 const tints = {
 	primary: {
@@ -18,23 +18,27 @@ const tints = {
 	},
 } as const;
 
-export interface CardProps extends PropsWithChildren {
+export interface CardProps extends BoxProps {
 	tint?: keyof typeof tints;
 	title: string;
 	footer?: ReactNode;
-	sizing?: CellProps['sizing'];
 }
 
 const Card: React.FC<CardProps> = ({
-	tint, sizing,
-	title, children, footer,
+	tint,
+	title,
+	children,
+	footer,
+	className,
+	...props
 }) => {
 	const tintStyle = useMemo(() => tints[tint ?? 'primary'], [tint]);
 
 	return (
-		<Cell
-			sizing={sizing}
+		<Box
+			{...props}
 			className={classnames(
+				className,
 				'flex flex-col items-stretch',
 				'border-2',
 				tintStyle.card,
@@ -58,7 +62,7 @@ const Card: React.FC<CardProps> = ({
 					{footer}
 				</div>
 			)}
-		</Cell>
+		</Box>
 	);
 };
 

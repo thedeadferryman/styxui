@@ -27,7 +27,7 @@ const isIntLike = (value: string) => (
 	Number.isFinite(Number.parseInt(value, 10))
 );
 
-const setPath = (obj: any, path: string[], value: any) => {
+export const setPath = (obj: any, path: string[], value: any) => {
 	if (path.length < 1) return value;
 
 	const [current, ...rest] = path;
@@ -43,7 +43,7 @@ const setPath = (obj: any, path: string[], value: any) => {
 
 		if (Array.isArray(nextObj)) {
 			nextObj = [...obj];
-			nextObj[idx] = setPath(obj[idx], rest, value);
+			nextObj[idx] = setPath(nextObj[idx], rest, value);
 		}
 	} else {
 		if (isNil(nextObj)) {
@@ -52,12 +52,23 @@ const setPath = (obj: any, path: string[], value: any) => {
 			nextObj = { ...nextObj };
 		}
 
-		nextObj[current] = setPath(obj[current], rest, value);
+		nextObj[current] = setPath(nextObj[current], rest, value);
 	}
 
 	return nextObj;
 };
 
 export const set = (obj: any, path: string, value: any) => (
-	setPath(obj, path.split('.'), value)
+	setPath(obj, asPath(path), value)
+);
+
+export const asPath = (path: string) => path.split('.');
+
+export const isSubpath = (path: string, subpath: string) => (
+	(subpath.substring(0, path.length) === path && subpath[path.length] === '.')
+	|| path === subpath
+);
+
+export const relativeTo = (path: string, basis: string) => (
+	isSubpath(basis, path) ? path.substring(basis.length) : path
 );

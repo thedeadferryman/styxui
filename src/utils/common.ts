@@ -39,3 +39,21 @@ export const pp = <T>(value: T, fmt?: string) => {
 
 	return value;
 };
+
+let idCounter = 0;
+
+export function uniqueId(): number;
+export function uniqueId(prefix: string): string;
+
+export function uniqueId(prefix?: string) {
+	const idv = idCounter++;
+
+	return isNil(prefix) ? idv : `${prefix}${idv}`;
+}
+
+export const wtf = (value: never): never => {
+	throw new Error('WTF = ' + value);
+};
+
+export const noop = (..._: any[]) => {
+};

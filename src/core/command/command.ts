@@ -13,7 +13,7 @@ export interface CallCommand {
 }
 
 export interface ReturnCommand {
-	$: 'return';
+	$: 'expr';
 	value: Expr;
 }
 
@@ -43,7 +43,13 @@ export interface CallbackCommand {
 	callback: (args: any) => any;
 }
 
-export type Command =
+export interface DebounceCommand {
+	$: 'debounce';
+	body: Command;
+	delay: number;
+}
+
+export type RuntimeCommand =
 	SetCommand
 	| CallCommand
 	| ChainCommand
@@ -51,5 +57,10 @@ export type Command =
 	| BindCommand
 	| BindChainCommand
 	| DelayCommand
-	| CallbackCommand
-	;
+	| CallbackCommand;
+
+export type CompiledCommand =
+	DebounceCommand;
+
+export type Command =
+	CompiledCommand | RuntimeCommand;
